@@ -8,7 +8,8 @@ using System.Runtime.Serialization.Formatters.Binary;
 
 using WinchesterDE;
 
-class WinchesterDLG : Form {
+class WinchesterDLG : Form
+{
     // declararea câmpurilor clasei
     private Label products_Label;
     private ListBox products_ListBox;
@@ -41,8 +42,13 @@ class WinchesterDLG : Form {
     public Label weight_Level_Label;
 
     // declarăm butonul 
-    private Button submit_Button;
-    private ContextMenu m_ContextMenu;
+    private Button btnSave;
+    private Button btnLoad;
+    private Button btnCreate;
+    private Button btnEdit;
+    private Button btnDelete;
+    private Label lblInfo;
+    private Winchester currentWinchester;
 
     public bool unsaved;
     public string filepath;
@@ -50,13 +56,14 @@ class WinchesterDLG : Form {
     //---------------------------------------------------------------------------------------------//
 
     // definirea constructorului implicit fară parametri
-    public WinchesterDLG()  {
+    public WinchesterDLG()
+    {
         // setăm textul pe bara de titlu a ferestrei
-        Text = "SDI Application.";
+        Text = "Winchester";
         // setăm poziţia şi dimensiunile iniţiale ale ferestrei
         StartPosition = FormStartPosition.Manual;
         Location = new System.Drawing.Point(100, 100);
-        Size = new System.Drawing.Size(500, 500);
+        Size = new System.Drawing.Size(500, 600);
         filepath = "";
         //---------------------------------------------------------------------------------------------//
 
@@ -294,6 +301,7 @@ class WinchesterDLG : Form {
             });
         // marcăm primul element ca fiind selectat
         postCode_ComboBox.SelectedIndex = 0;
+
         // adăugăm lista DropDown în formă
         Controls.Add(postCode_ComboBox);
 
@@ -414,39 +422,32 @@ class WinchesterDLG : Form {
         // setăm numărul de poziții între divizările vecine a scalei
         inthelistofCalibre_TrackBar.TickFrequency = 0;
         // adăugăm tratarea evenimentului de deplasare a indicatorului
-        inthelistofCalibre_TrackBar.Scroll += new EventHandler(TrackBar_Scroll);
         // adăugăm controlul la forma
         Controls.Add(inthelistofCalibre_TrackBar);
 
         //---------------------------------------------------------------------------------------------//	
+        int top = 360;
+        btnSave = new Button { Text = "Save", Top = top, Left = 10 };
+        btnLoad = new Button { Text = "Load", Top = top, Left = 100 };
+        btnCreate = new Button { Text = "Create", Top = top, Left = 190 };
+        btnEdit = new Button { Text = "Edit", Top = top, Left = 280 };
+        btnDelete = new Button { Text = "Delete", Top = top, Left = 370 };
+        lblInfo = new Label { Text = "Info:", Top = top + 50, Left = 10, Width = 460, Height = 100 };
 
-        // creăm obiectul buton
-        submit_Button = new Button();
-        // setăm textul butonului
-        submit_Button.Text = "View Details";
-        // dezactivăm butonul până când caseta de selectare nu este bifată
-        submit_Button.Enabled = true;
-        // setăm dimensiunea și poziția butonului în fereastră
-        submit_Button.Location = new System.Drawing.Point(150, 376);
-        submit_Button.Size = new System.Drawing.Size(100, 24);
-        // setăm stilul butonului
-        submit_Button.FlatStyle = System.Windows.Forms.FlatStyle.Popup;
-        // adăugăm un Handler la evenimentul Click pe buton
-        submit_Button.Click += new System.EventHandler(Button_Click);
-        // inserăm butonul în fereastră
-        Controls.Add(submit_Button);
+        btnSave.Click += (sender, e) => SaveWinchester();
+        btnLoad.Click += (sender, e) => LoadWinchester();
+        btnCreate.Click += (sender, e) => CreateWinchester();
+        btnEdit.Click += (sender, e) => EditWinchester();
+        btnDelete.Click += (sender, e) => DeleteWinchester();
 
+        Controls.Add(btnSave);
+        Controls.Add(btnLoad);
+        Controls.Add(btnCreate);
+        Controls.Add(btnEdit);
+        Controls.Add(btnDelete);
+        Controls.Add(lblInfo);
         //---------------------------------------------------------------------------------------------//	
         // setăm legătura între evenimentul ”Închiderea ferestrei” și handler-ul de evenimente.
-        Closed += new System.EventHandler(Winchester_Closed);
-        m_ContextMenu = new ContextMenu();
-        // m_ContextMenu.Popup += new EventHandler(ContextMenu_Popup);
-        this.ContextMenu = m_ContextMenu;
-
-        MenuItem ContextMenuFileSave = new MenuItem("Save", new EventHandler(MenuFileSave_OnClick));
-        ContextMenuFileSave.Shortcut = Shortcut.CtrlS;
-        ContextMenuFileSave.ShowShortcut = true;
-        m_ContextMenu.MenuItems.Add(ContextMenuFileSave);
     }
 
     // HANDLER-E!!!!!
@@ -458,158 +459,157 @@ class WinchesterDLG : Form {
     // HANDLER-E!!!!!
     //*---*---*---*---*---*---*---*---*---*---*---*---*---*---*---*---*---*---*---*---*---*---*\\
     // Handler-ul evenimentului ”S-a schimbat evidențierea elementelor”
-    private void ListBox_SelectedIndexChanged(object sender, System.EventArgs e) {
+    private void ListBox_SelectedIndexChanged(object sender, System.EventArgs e)
+    {
         string str;
         str = "";
-        foreach (int idx in products_ListBox.SelectedIndices) {
+        foreach (int idx in products_ListBox.SelectedIndices)
+        {
             str += products_ListBox.Items[idx] + "";
         }
         products_Value = str;
         unsaved = true;
     }
-
     //*---*---*---*---*---*---*---*---*---*---*---*---*---*---*---*---*---*---*---*---*---*---*\\
-    // Handler-ul evenimentului deplasarea indicatorului
-    private void TrackBar_Scroll(object sender, System.EventArgs e) {
-        inthelistofCalibre_Label.Text = "In the list of Calibre: \n" + inthelistofCalibre_TrackBar.Value;
-        unsaved = true;
-    }
+
+
 
     //*---*---*---*---*---*---*---*---*---*---*---*---*---*---*---*---*---*---*---*---*---*---*\\
 
-    // Handler la evenimentul click pe buton
-    private void Button_Click(object sender, System.EventArgs e) {
-        // afișăm un mesaj pe ecran
-        MessageBox.Show("The product type is " + products_Value + " and is named " + name_TextBox.Text + " \nwith the model year " + yearModel_TextBox.Text + " \nthe lenght " + length_NumericUpDown.Value + " (mm) " + " \nthe weight " + Weight_NumericUpDown.Value + " (pounds)" + " \nand the telephone code " + telephoneCode_TextBox.Text, "Information", MessageBoxButtons.OK, MessageBoxIcon.Information);
-    }
+
     //*---*---*---*---*---*---*---*---*---*---*---*---*---*---*---*---*---*---*---*---*---*---*\\
 
-    private void Winchester_Closed(object sender, EventArgs e) {
-        // fiindcă forma va fi folosită ca o fereastră de dialog modală, după un clic pe butonul ”X” (Close) din colţul dreapta-sus, ea devine invizibilă. În acest caz metoda Close nu va fi apelată. Distrugem fereastra şi eliberăm resurse
-        if (unsaved) {
-            RegisterDialog RegDlg = new RegisterDialog();
-            DialogResult result = RegDlg.ShowDialog(this);
-            if (result == DialogResult.Yes) {
-                MenuFileSave_OnClick(sender, e);
+    private void SaveWinchester()
+    {
+        if (currentWinchester != null)
+        {
+            try
+            {
+                SaveFileDialog saveFileDialog = new SaveFileDialog { Filter = "Binary files (*.bin)|*.bin" };
+                if (saveFileDialog.ShowDialog() == DialogResult.OK)
+                {
+                    currentWinchester.setProducts(products_Value);
+                    currentWinchester.setName(name_TextBox.Text);
+                    currentWinchester.setPostCode(int.Parse(postCode_ComboBox.Text));
+                    currentWinchester.setTelephoneCode(Int32.Parse(telephoneCode_TextBox.Text));
+                    currentWinchester.setInthelistofCalibre((int)inthelistofCalibre_TrackBar.Value);
+                    currentWinchester.setYearModel(int.Parse(yearModel_TextBox.Text));
+                    currentWinchester.setLength(Convert.ToDouble(length_NumericUpDown.Value));
+                    currentWinchester.setWeight(Convert.ToDouble(Weight_NumericUpDown.Value));
+                    // Assuming you want to save only the year
+                    // Save the other properties accordingly
+                    currentWinchester.SaveToFile(saveFileDialog.FileName);
+                    MessageBox.Show("Winchester saved successfully.");
+                }
             }
-            RegDlg.Dispose();
+            catch (Exception ex)
+            {
+                MessageBox.Show("Error saving Winchester:" + ex.Message);
+            }
         }
-        Dispose();
-    }
-
-    //*---*---*---*---*---*---*---*---*---*---*---*---*---*---*---*---*---*---*---*---*---*---*\\
-    private void MenuFileSave_OnClick(object sender, EventArgs e) {
-        Winchester ob = CreateWinchester();
-        filepath = Text;
-        if (Text == "Untitled") {
-            MenuFileSaveAs_OnClick(sender, e);
-        }
-        else {
-            IFormatter formatter = new BinaryFormatter();
-            Stream output_stream = new FileStream(filepath,
-                                                  FileMode.Create,
-                                                  FileAccess.Write,
-                                                  FileShare.None);
-            formatter.Serialize(output_stream, ob);
-            unsaved = false;
-            Text = filepath;
-            output_stream.Close();
+        else
+        {
+            MessageBox.Show("No Winchester object to save.");
         }
     }
 
-    //*---*---*---*---*---*---*---*---*---*---*---*---*---*---*---*---*---*---*---*---*---*---*\\
-    private void MenuFileSaveAs_OnClick(object sender, EventArgs e) {
-        Winchester ob = CreateWinchester();
-        SaveFileDialog saveFileDialog = new SaveFileDialog();
-        // în cazul când valoarea este true, pentru obținerea denumirilor ale fișierelor trebuie să utilizăm proprietatea FileNames    
-        saveFileDialog.Filter = "All files (*.*)|*.*";
-        saveFileDialog.FilterIndex = 1;
-        if (saveFileDialog.ShowDialog(this) == DialogResult.OK) {
-            IFormatter formatter = new BinaryFormatter();
-            Stream output_stream = new FileStream(saveFileDialog.FileName + ".bin",
-                                                      FileMode.Create,
-                                                      FileAccess.Write,
-                                                      FileShare.None);
-            formatter.Serialize(output_stream, ob);
-            output_stream.Close();
-            filepath = saveFileDialog.FileName;
-            Text = filepath;
-            // m_StatusBarTextPanel.Text="[SUCCESS] "+saveFileDialog.FileName+" File Saved"; 
+    private void LoadWinchester()
+    {
+        try
+        {
+            OpenFileDialog openFileDialog = new OpenFileDialog { Filter = "Binary files (*.bin)|*.bin" };
+            if (openFileDialog.ShowDialog() == DialogResult.OK)
+            {
+                // Assuming you have a static LoadFromFile method in the Winchester class
+                currentWinchester = Winchester.LoadFromFile(openFileDialog.FileName);
+                DisplayWinchesterInfo();
+                MessageBox.Show("Winchester loaded successfully.");
+            }
         }
-        saveFileDialog.Dispose();
-        unsaved = false;
-    }
-
-    //*---*---*---*---*---*---*---*---*---*---*---*---*---*---*---*---*---*---*---*---*---*---*\\
-
-    public Winchester CreateWinchester() {
-        Winchester ob = new Winchester();
-
-        ob.setProducts(products_Value);
-        ob.setName(name_TextBox.Text);
-        ob.setYearModel(int.Parse(yearModel_TextBox.Text));
-        ob.setTelephoneCode(int.Parse(telephoneCode_TextBox.Text));
-        ob.setPostCode(int.Parse(postCode_ComboBox.Text));
-        ob.setInthelistofCalibre((int)inthelistofCalibre_TrackBar.Value);
-        ob.setLength(Convert.ToDouble(length_NumericUpDown.Value));
-        ob.setWeight(Convert.ToDouble(Weight_NumericUpDown.Value));
-        return ob;
-    }
-
-    //*---*---*---*---*---*---*---*---*---*---*---*---*---*---*---*---*---*---*---*---*---*---*\\
-
-    private void MenuOpen_OnClick(Object sender, EventArgs e) {
-        OpenFileDialog openFileDialog = new OpenFileDialog();
-        // în cazul când valoarea este true, pentru obținerea denumirilor ale fișierelor trebuie să utilizăm proprietatea FileNames
-        openFileDialog.Multiselect = false;
-        openFileDialog.Filter =
-        "bmp files (*.bmp)|*.bmp|jpg files (*.jpg)|*.jpg";
-        openFileDialog.FilterIndex = 1;
-        if (openFileDialog.ShowDialog(this) == DialogResult.OK) {
-            filepath = openFileDialog.FileName;
+        catch (Exception ex)
+        {
+            MessageBox.Show("Error loading Winchester: " + ex.Message);
         }
-        openFileDialog.Dispose();
-        unsaved = false;
     }
 
-    //*---*---*---*---*---*---*---*---*---*---*---*---*---*---*---*---*---*---*---*---*---*---*\\
-    //*---*---*---*---*---*---*---*---*---*---*---*---*---*---*---*---*---*---*---*---*---*---*\\
+    private void CreateWinchester()
+    {
+        // Assuming you have added necessary parameters to the Winchester constructor
+        currentWinchester = new Winchester(
+            products_Value,
+            name_TextBox.Text,
+            int.Parse(yearModel_TextBox.Text),
+            int.Parse(postCode_ComboBox.Text),
+            int.Parse(telephoneCode_TextBox.Text),
+            (int)inthelistofCalibre_TrackBar.Value,
+            Convert.ToDouble(length_NumericUpDown.Value),
+            Convert.ToDouble(Weight_NumericUpDown.Value)
+            );
+        DisplayWinchesterInfo();
+        MessageBox.Show("Winchester created successfully.");
+    }
 
-    public void fillForm(Winchester ob) {
-        // sector_ListBox.SetSelected(0, true);
-        switch (ob.getProducts()) {
-            case "Shotguns":
-                products_ListBox.SetSelected(0, true);
-                break;
-            case "Rifles":
-                products_ListBox.SetSelected(1, true);
-                break;
-            case "Limited Editions":
-                products_ListBox.SetSelected(2, true);
-                break;
-            case "Ammunitions":
-                products_ListBox.SetSelected(3, true);
-                break;
-            case "Clothes":
-                products_ListBox.SetSelected(4, true);
-                break;
-            case "Accessories":
-                products_ListBox.SetSelected(5, true);
-                break;
-            case "New Product":
-                products_ListBox.SetSelected(6, true);
-                break;
-            default:
-                Console.WriteLine("Other");
-                break;
+    private void EditWinchester()
+    {
+        if (currentWinchester != null)
+        {
+            // Assuming you have added necessary properties to the Winchester class
+            currentWinchester.setProducts(products_Value);
+            currentWinchester.setName(name_TextBox.Text);
+
+            currentWinchester.setPostCode(int.Parse(postCode_ComboBox.Text));
+            currentWinchester.setTelephoneCode(Int32.Parse(telephoneCode_TextBox.Text));
+            currentWinchester.setInthelistofCalibre((int)inthelistofCalibre_TrackBar.Value);
+            // Assuming ManufactureDate is a property in the Winchester class
+            currentWinchester.setYearModel(Int32.Parse(yearModel_TextBox.Text));
+            currentWinchester.setLength(Decimal.ToDouble(length_NumericUpDown.Value));
+            currentWinchester.setWeight(Decimal.ToDouble(Weight_NumericUpDown.Value));
+            // Assuming you want to save only the year
+            DisplayWinchesterInfo();
+            MessageBox.Show("Winchester updated successfully.");
         }
-        name_TextBox.Text = ob.getName();
-        yearModel_TextBox.Text = "" + ob.getYearModel();
-        telephoneCode_TextBox.Text = "" + ob.getYearModel();
-        postCode_ComboBox.Text = "" + ob.getTelephoneCode();
-        length_NumericUpDown.Value = new Decimal(ob.getLength());
-        Weight_NumericUpDown.Value = new Decimal(ob.getWeight());
-        inthelistofCalibre_TrackBar.Value = (int)ob.getInthelistofCalibre();
+        else
+        {
+            MessageBox.Show("No Winchester object to edit.");
+        }
     }
+
+    private void DeleteWinchester()
+    {
+        if (currentWinchester != null)
+        {
+            currentWinchester = null;
+            lblInfo.Text = "Info:";
+            MessageBox.Show("Winchester deleted successfully.");
+        }
+        else
+        {
+            MessageBox.Show("No Winchester object to delete.");
+        }
+    }
+
+    private void DisplayWinchesterInfo()
+    {
+        if (currentWinchester != null)
+        {
+            // Assuming you have added necessary properties to the Winchester class
+            lblInfo.Text = "Product: " + currentWinchester.getProducts() + "\n" +
+                           "Name: " + currentWinchester.getName() + "\n" +
+                           "Post Code: " + currentWinchester.getPostCode() + "\n" +
+                           "Telephone Code: " + currentWinchester.getTelephoneCode() + "\n" +
+                           "Lenght: " + currentWinchester.getLength() + " mm" + "\n" +
+                           "Calibre:" + currentWinchester.getInthelistofCalibre() + "\n" +
+                           "Weight (pounds):" + currentWinchester.getWeight() + "\n" +
+                           "Manufacture Year: " + currentWinchester.getYearModel(); // Assuming you want to display only the year
+        }
+        else
+        {
+            lblInfo.Text = "Info:";
+        }
+    }
+
+
     //*---*---*---*---*---*---*---*---*---*---*---*---*---*---*---*---*---*---*---*---*---*---*\\
+
+
 }

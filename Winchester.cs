@@ -1,5 +1,6 @@
 ﻿using System;
-
+using System.IO;
+using System.Runtime.Serialization.Formatters.Binary;
 namespace WinchesterDE
 {
     [Serializable]
@@ -16,6 +17,18 @@ namespace WinchesterDE
         private double weight;
         private double length;
 
+        public Winchester(string products, string name, int yearModel, int postCode, int telephoneCode, int inthelistofCalibre, double weight, double length)
+        {
+            // Assigning parameter values to corresponding fields using 'this' keyword
+            this.products = products;
+            this.name = name;
+            this.yearModel = yearModel;
+            this.postCode = postCode;
+            this.telephoneCode = telephoneCode;
+            this.inthelistofCalibre = inthelistofCalibre;
+            this.weight = weight;
+            this.length = length;
+        }
         // Getters şi Setters
         public string getProducts()
         {
@@ -95,6 +108,23 @@ namespace WinchesterDE
         public void setLength(double value)
         {
             if (value > 0) length = value;
+        }
+        public void SaveToFile(string filePath)
+        {
+            using (FileStream stream = new FileStream(filePath, FileMode.Create))
+            {
+                BinaryFormatter formatter = new BinaryFormatter();
+                formatter.Serialize(stream, this);
+            }
+        }
+
+        public static Winchester LoadFromFile(string filePath)
+        {
+            using (FileStream stream = new FileStream(filePath, FileMode.Open))
+            {
+                BinaryFormatter formatter = new BinaryFormatter();
+                return (Winchester)formatter.Deserialize(stream);
+            }
         }
     }
 }
