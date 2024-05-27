@@ -1,15 +1,13 @@
 using System;
 using System.Windows.Forms;
 // declarăm clasa principală a aplicației
-class MDIApp
-{
+class MDIApp {
     // funcția Main definește punctul de intrare al aplicației
     [STAThread]
-    public static void Main()
-    {
+    public static void Main() {
         // creăm fereastra principală a aplicației
-        WinchesterDLG winchesterDLG = new WinchesterDLG();
+        MainMDIWnd MainWnd = new MainMDIWnd();
         // metoda Run lansează ciclul de prelucrare a mesajelor și vizualizează fereastra pe ecran
-        Application.Run(winchesterDLG);
+        Application.Run(MainWnd);
     }
 }
