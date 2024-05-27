@@ -50,6 +50,12 @@ class WinchesterDLG : Form
     private Label lblInfo;
     private Winchester currentWinchester;
 
+    private MainMenu mainMenu;
+    private MenuItem fileMenu;
+    private MenuItem editMenu;
+    private MenuItem viewMenu;
+    private MenuItem helpMenu;
+
     public bool unsaved;
     public string filepath;
 
