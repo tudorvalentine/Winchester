@@ -71,7 +71,7 @@ class WinchesterDLG : Form
         saveItem = new MenuItem("Save", new EventHandler(this.SaveWinchester), Shortcut.CtrlS);
         mainMenu = new MainMenu();
         fileMenu = new MenuItem("File");
-        aboutMenu = new MenuItem("About");
+        aboutMenu = new MenuItem("About", new EventHandler(this.MenuHelpAbout_OnClick));
 
         fileMenu.MenuItems.Add(NewItem);
         fileMenu.MenuItems.Add(LoadItem);
@@ -628,6 +628,10 @@ class WinchesterDLG : Form
         {
             lblInfo.Text = "Info:";
         }
+    }
+    private void MenuHelpAbout_OnClick(object sender, EventArgs e)
+    {
+        MessageBox.Show("©Popescu Tudor\ndin grupa MIA2301\nLaboratorul numarul 2\n 2024");
     }
 
 
