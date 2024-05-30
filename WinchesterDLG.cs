@@ -10,6 +10,16 @@ using WinchesterDE;
 
 class WinchesterDLG : Form
 {
+    private MainMenu mainMenu;
+    private MenuItem fileMenu;
+    private MenuItem aboutMenu;
+
+
+    private MenuItem saveItem;
+    private MenuItem LoadItem;
+    private MenuItem DeleteItem;
+    private MenuItem NewItem;
+
     // declararea câmpurilor clasei
     private Label products_Label;
     private ListBox products_ListBox;
@@ -42,19 +52,10 @@ class WinchesterDLG : Form
     public Label weight_Level_Label;
 
     // declarăm butonul 
-    private Button btnSave;
-    private Button btnLoad;
     private Button btnCreate;
     private Button btnEdit;
-    private Button btnDelete;
     private Label lblInfo;
     private Winchester currentWinchester;
-
-    private MainMenu mainMenu;
-    private MenuItem fileMenu;
-    private MenuItem editMenu;
-    private MenuItem viewMenu;
-    private MenuItem helpMenu;
 
     public bool unsaved;
     public string filepath;
@@ -64,9 +65,28 @@ class WinchesterDLG : Form
     // definirea constructorului implicit fară parametri
     public WinchesterDLG()
     {
+        NewItem = new MenuItem("New", new EventHandler(this.NewWinchester), Shortcut.CtrlN);
+        LoadItem = new MenuItem("Load", new EventHandler(this.LoadWinchester), Shortcut.CtrlL);
+        DeleteItem = new MenuItem("Delete", new EventHandler(this.DeleteWinchester), Shortcut.CtrlD);
+        saveItem = new MenuItem("Save", new EventHandler(this.SaveWinchester), Shortcut.CtrlS);
+        mainMenu = new MainMenu();
+        fileMenu = new MenuItem("File");
+        aboutMenu = new MenuItem("About");
+
+        fileMenu.MenuItems.Add(NewItem);
+        fileMenu.MenuItems.Add(LoadItem);
+        fileMenu.MenuItems.Add(saveItem);
+        fileMenu.MenuItems.Add(DeleteItem);
+
+        mainMenu.MenuItems.Add(fileMenu);
+        mainMenu.MenuItems.Add(aboutMenu);
+
+        this.Menu = mainMenu;
+
+        // StatusBar
+
         // setăm textul pe bara de titlu a ferestrei
         Text = "Winchester";
-        // setăm poziţia şi dimensiunile iniţiale ale ferestrei
         StartPosition = FormStartPosition.Manual;
         Location = new System.Drawing.Point(100, 100);
         Size = new System.Drawing.Size(500, 600);
@@ -433,24 +453,15 @@ class WinchesterDLG : Form
 
         //---------------------------------------------------------------------------------------------//	
         int top = 360;
-        btnSave = new Button { Text = "Save", Top = top, Left = 10 };
-        btnLoad = new Button { Text = "Load", Top = top, Left = 100 };
-        btnCreate = new Button { Text = "Create", Top = top, Left = 190 };
-        btnEdit = new Button { Text = "Edit", Top = top, Left = 280 };
-        btnDelete = new Button { Text = "Delete", Top = top, Left = 370 };
+        btnCreate = new Button { Text = "Create", Top = top, Left = 10 };
+        btnEdit = new Button { Text = "Edit", Top = top, Left = 100 };
         lblInfo = new Label { Text = "Info:", Top = top + 50, Left = 10, Width = 460, Height = 100 };
 
-        btnSave.Click += (sender, e) => SaveWinchester();
-        btnLoad.Click += (sender, e) => LoadWinchester();
         btnCreate.Click += (sender, e) => CreateWinchester();
         btnEdit.Click += (sender, e) => EditWinchester();
-        btnDelete.Click += (sender, e) => DeleteWinchester();
 
-        Controls.Add(btnSave);
-        Controls.Add(btnLoad);
         Controls.Add(btnCreate);
         Controls.Add(btnEdit);
-        Controls.Add(btnDelete);
         Controls.Add(lblInfo);
         //---------------------------------------------------------------------------------------------//	
         // setăm legătura între evenimentul ”Închiderea ferestrei” și handler-ul de evenimente.
@@ -485,7 +496,12 @@ class WinchesterDLG : Form
 
     //*---*---*---*---*---*---*---*---*---*---*---*---*---*---*---*---*---*---*---*---*---*---*\\
 
-    private void SaveWinchester()
+    private void NewWinchester(object sender, EventArgs e)
+    {
+        WinchesterDLG newWinchesterDialog = new WinchesterDLG();
+        newWinchesterDialog.Show();
+    }
+    private void SaveWinchester(object sender, EventArgs e)
     {
         if (currentWinchester != null)
         {
@@ -519,7 +535,7 @@ class WinchesterDLG : Form
         }
     }
 
-    private void LoadWinchester()
+    private void LoadWinchester(object sender, EventArgs e)
     {
         try
         {
@@ -580,7 +596,7 @@ class WinchesterDLG : Form
         }
     }
 
-    private void DeleteWinchester()
+    private void DeleteWinchester(object sender, EventArgs e)
     {
         if (currentWinchester != null)
         {
