@@ -509,7 +509,7 @@ class WinchesterDLG : Form
         }
         else
         {
-            MessageBox.Show("No Winchester object to save.");
+            MessageBox.Show("Nu exista Winchester pentru editare");
         }
     }
 
@@ -523,7 +523,7 @@ class WinchesterDLG : Form
                 // Assuming you have a static LoadFromFile method in the Winchester class
                 currentWinchester = Winchester.LoadFromFile(openFileDialog.FileName);
                 DisplayWinchesterInfo();
-                MessageBox.Show("Winchester loaded successfully.");
+                MessageBox.Show("Winchester incarcat cu success.");
             }
         }
         catch (Exception ex)
@@ -546,7 +546,7 @@ class WinchesterDLG : Form
             Convert.ToDouble(Weight_NumericUpDown.Value)
             );
         DisplayWinchesterInfo();
-        MessageBox.Show("Winchester created successfully.");
+        MessageBox.Show("Winchester creat cu success.");
     }
 
     private void EditWinchester()
@@ -566,7 +566,7 @@ class WinchesterDLG : Form
             currentWinchester.setWeight(Decimal.ToDouble(Weight_NumericUpDown.Value));
             // Assuming you want to save only the year
             DisplayWinchesterInfo();
-            MessageBox.Show("Winchester updated successfully.");
+            MessageBox.Show("Winchester editat cu suuccess.");
         }
         else
         {
@@ -580,7 +580,7 @@ class WinchesterDLG : Form
         {
             currentWinchester = null;
             lblInfo.Text = "Info:";
-            MessageBox.Show("Winchester deleted successfully.");
+            MessageBox.Show("Winchester sters cu success.");
         }
         else
         {
