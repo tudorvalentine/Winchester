@@ -521,7 +521,7 @@ class WinchesterDLG : Form
                     // Assuming you want to save only the year
                     // Save the other properties accordingly
                     currentWinchester.SaveToFile(saveFileDialog.FileName);
-                    MessageBox.Show("Winchester saved successfully.");
+                    MessageBox.Show("Winchester salvat cu success.");
                 }
             }
             catch (Exception ex)
@@ -545,7 +545,7 @@ class WinchesterDLG : Form
                 // Assuming you have a static LoadFromFile method in the Winchester class
                 currentWinchester = Winchester.LoadFromFile(openFileDialog.FileName);
                 DisplayWinchesterInfo();
-                MessageBox.Show("Winchester loaded successfully.");
+                MessageBox.Show("Winchester incarcat cu success.");
             }
         }
         catch (Exception ex)
@@ -568,7 +568,7 @@ class WinchesterDLG : Form
             Convert.ToDouble(Weight_NumericUpDown.Value)
             );
         DisplayWinchesterInfo();
-        MessageBox.Show("Winchester created successfully.");
+        MessageBox.Show("Winchester creat cu success.");
     }
 
     private void EditWinchester()
@@ -588,7 +588,7 @@ class WinchesterDLG : Form
             currentWinchester.setWeight(Decimal.ToDouble(Weight_NumericUpDown.Value));
             // Assuming you want to save only the year
             DisplayWinchesterInfo();
-            MessageBox.Show("Winchester updated successfully.");
+            MessageBox.Show("Winchester editat cu success.");
         }
         else
         {
@@ -602,7 +602,7 @@ class WinchesterDLG : Form
         {
             currentWinchester = null;
             lblInfo.Text = "Info:";
-            MessageBox.Show("Winchester deleted successfully.");
+            MessageBox.Show("Winchester sters cu success.");
         }
         else
         {
